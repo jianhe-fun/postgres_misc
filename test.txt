@@ -1,0 +1,28 @@
+sudo -u postgres psql
+ No such file or directory
+
+\i pagila-schema.sql
+\ir pagila-schema.sql
+\ir home/jian/pagila-schema.sql
+\ir /home/jian/pagila-schema.sql
+
+pagilaschema.sql
+cd ~
+
+readlink -f pagilaschema.sql
+readlink -f data.sql
+vi data.sql
+sudo rm /mnt/c/Users/JIAN HE/data.sql
+sudo rm /mnt/c/Users/JIAN HE/data.sql
+sudo rm /home/jian/data.sql
+
+vim -r data.sql
+
+rm .data.sql.swp
+
+172.26.63.146
+psql -U postgres -d pagila -h 172.26.63.146
+
+\ir "C:/Users/JIAN HE/Desktop/data.sql"
+\ir 'C:/Users/JIAN HE/Desktop/data.sql'
+\ir 'C:/Users/JIAN HE/Desktop/schema.sql'

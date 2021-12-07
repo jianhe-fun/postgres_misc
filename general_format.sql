@@ -5,5 +5,5 @@ BEGIN
      ---
   ELSE
      ---
-  END IF
-end;
+  END IF;
+end

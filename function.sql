@@ -64,5 +64,24 @@ $func$  LANGUAGE plpgsql;
 
 SELECT * FROM f_tag_id(1, 'foo');
 ----------------------------
+--return an table type result, also drop the table with on commit drop. 
+--ROW_COUNT  bitint: the number of rows processed by the most recent SQL command.
+CREATE OR REPLACE FUNCTION func_temp (_tbl regclass)
+      RETURNS TABLE(id int, e text) AS 
+   $func$
+      DECLARE _ct int;
+      BEGIN
+         EXECUTE format(
+            'create temp table tmp on commit drop as
+               select parent_id, some_text from %s', _tbl
+         );
+         
+         get diagnostics _ct = ROW_COUNT;
+
+         RAISE NOTICE '% results', _ct;                                         
+         return query table tmp;
+      end
+   $func$ LANGUAGE plpgsql;
+   
 
 

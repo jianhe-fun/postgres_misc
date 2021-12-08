@@ -130,3 +130,14 @@ $do$;
 ---------------------------------------------------------------------
 --Get the definition of one function with SQL query.
 select pg_get_functiondef('c_foo()'::regprocedure);
+--function to slice 2D array to 1D array.
+CREATE OR REPLACE FUNCTION unnest_2d_1d(ANYARRAY, OUT a ANYARRAY)
+  RETURNS SETOF ANYARRAY AS
+$func$
+BEGIN
+   FOREACH a SLICE 1 IN ARRAY $1 LOOP
+      RETURN NEXT;
+   END LOOP;
+END
+$func$  LANGUAGE plpgsql IMMUTABLE STRICT;
+-----------------

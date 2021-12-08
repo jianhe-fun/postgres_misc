@@ -7,3 +7,32 @@ BEGIN
      ---
   END IF;
 end
+-----FORMAT FOR LOOP.
+-- https://www.postgresql.org/docs/14/plpgsql-declarations.html#PLPGSQL-DECLARATION-RECORDS
+/*
+
+   Record variables are similar to row-type variables, but they have no predefined structure. 
+-- They take on the actual row structure of the row they are assigned during a SELECT or FOR command. 
+-- The substructure of a record variable can change each time it is assigned to. 
+-- A consequence of this is that until a record variable is first assigned to, it has no substructure, 
+-- and any attempt to access a field in it will draw a run-time error.
+
+*/
+CREATE OR REPLACE FUNCTION avoidable_states()
+  RETURNS SETOF varchar AS
+$func$
+DECLARE
+    rec record;
+BEGIN   
+   FOR rec IN
+      SELECT *
+      FROM   address ad
+      JOIN   city    ct USING (city_id)
+   LOOP
+      IF rec.city LIKE '%hi%' THEN
+          RETURN NEXT rec.city;               
+      END IF;
+   END LOOP;
+END
+$func$  LANGUAGE plpgsql STABLE;
+-----------------------------

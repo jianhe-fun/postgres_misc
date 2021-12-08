@@ -1,4 +1,5 @@
 # plpgsql
+# why [PLPGSQL Function](https://stackoverflow.com/questions/7510092/what-are-the-pros-and-cons-of-performing-calculations-in-sql-vs-in-your-applica/7518619#7518619)     
 PostgreSQL plpgsql demo
 https://stackoverflow.com/questions/7945932/how-to-return-result-of-a-select-inside-a-function-in-postgresql/7945958#7945958
 

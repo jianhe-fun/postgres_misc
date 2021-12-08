@@ -12,5 +12,5 @@ $func$ LANGUAGE plpgsql VOLATILE;
 -- 0.0 <= x < 1
 
 select random_pick();
-
+--execute an command multi times, in here it's 10.
 select 'select random_pick();' from generate_series(1,10) \gexec

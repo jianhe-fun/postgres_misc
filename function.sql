@@ -128,3 +128,5 @@ END LOOP;
 END
 $do$;
 ---------------------------------------------------------------------
+--Get the definition of one function with SQL query.
+select pg_get_functiondef('c_foo()'::regprocedure);

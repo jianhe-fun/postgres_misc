@@ -140,4 +140,17 @@ BEGIN
    END LOOP;
 END
 $func$  LANGUAGE plpgsql IMMUTABLE STRICT;
------------------
+---------------------------------------------
+-- RETURN AN DEFAULT VALUE IF AN COLUMN IS NOT EXITS.
+SELECT parent_id,some_text
+     , CASE WHEN col_exists THEN col_exists::text ELSE 'default' END AS does_col_exists
+FROM   parent_tree 
+CROSS  JOIN (
+   SELECT EXISTS (
+      SELECT FROM pg_catalog.pg_attribute --exists don't need specify the select column name. 
+      WHERE  attrelid = 'public.parent_tree'::regclass  -- schema-qualified!
+      AND    attname  = 'l_tree'
+      AND    NOT attisdropped    -- no dropped (dead) columns
+      AND    attnum   > 0        -- no system columns
+      )
+   ) extra(col_exists) limit 2;

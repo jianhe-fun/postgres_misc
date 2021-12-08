@@ -13,3 +13,8 @@ https://stackoverflow.com/questions/7462322/the-forgotten-assignment-operator-an
 > If you don't want a function saved and visible for other connections, consider a "temporary" function, which is an undocumented but well established feature.
 
 ## RECORD HOLD A SINGLE ROW OF DATA.
+_______________________
+### Cannot use transaction statements like SAVEPOINT, COMMIT or ROLLBACK in a function.
+>  since functions are not procedures that are invoked with CALL, you cannot do that in functions.
+The BEGIN that starts a block in PL/pgSQL is different from the SQL statement BEGIN that starts a transaction.
+any error within the plpgsql function body will lead to a ROLLBACK that also undoes any of the previous statements in the function body.

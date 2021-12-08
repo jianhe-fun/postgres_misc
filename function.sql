@@ -82,6 +82,49 @@ CREATE OR REPLACE FUNCTION func_temp (_tbl regclass)
          return query table tmp;
       end
    $func$ LANGUAGE plpgsql;
-   
+---------------------
+--SELECT INTO CLAUSE usage.
+SELECT name,family INTO cName, cFamily FROM "CommonUsersModel";
+SELECT INTO cName, cFamily name,family  FROM "CommonUsersModel" --this way also working.
+---------------------------------------------------------
+--to Check an text is json or not. 
+create or replace function is_json(text)
+returns boolean language plpgsql immutable as $$
+begin
+    perform $1::json;
+    return true;
+exception
+    when invalid_text_representation then 
+        return false;
+end $$;
 
-
+with users(user_data) as (
+values
+    ('{"user": {"name": "jim"}}'), ('not json'),
+    ('{"user": {"name": "sally"}}'),   ('also not json')
+)
+select user_data::json#>'{user,name}' as name
+from users where is_json(user_data);
+------------------------------------------------------------
+--DO block code drop all the table sharing the same prefix.
+-- In this case, the table begin with 'b' will be deleted. 
+DO
+$do$
+DECLARE
+   _tbl text;
+BEGIN
+FOR _tbl  IN
+    SELECT quote_ident(table_schema) || '.'
+        || quote_ident(table_name)      -- escape identifier and schema-qualify!
+    FROM   information_schema.tables
+    WHERE  table_name LIKE 'b' || '%'  -- your table name prefix
+    AND    table_schema NOT LIKE 'pg\_%'    -- exclude system schemas
+LOOP
+   RAISE NOTICE '%',
+-- EXECUTE
+  'DROP TABLE ' || _tbl;  -- see below
+   execute 'DROP TABLE ' || _tbl || 'cascade';
+END LOOP;
+END
+$do$;
+---------------------------------------------------------------------

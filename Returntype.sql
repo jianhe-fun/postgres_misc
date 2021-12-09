@@ -1,3 +1,10 @@
+--About return type.
+/*
+match the return data type.
+1.  setof  RETURNS SETOF my_table AS
+2. table  RETURNS TABLE (COLA INT, COLB INT,....)
+3. Record, return full row type.  RETURN SETOF RECORD AS
+*/
 --Create demo table.
 begin;
 CREATE TYPE public.ltree AS (a int, b int);
@@ -79,7 +86,7 @@ $func$;
 --pg_typeof is declared as returning regtype, which is an OID alias type. 
 --format %s >> s formats the argument value as a simple string. A null value is treated as an empty string
 --regtype automatically double quoted and schema-qualified. 
-CREATE OR REPLACE FUNCTION public.get_parent_ltree4(_tbl_type anyelement, _parent_id int)
+CREATE OR REPLACE FUNCTION public.get_parent_ltree5(_tbl_type anyelement, _parent_id int)
   returns setof anyelement
   language plpgsql as 
   $func$
@@ -91,3 +98,6 @@ CREATE OR REPLACE FUNCTION public.get_parent_ltree4(_tbl_type anyelement, _paren
     using _parent_id;
   end
   $func$;
+--Now call get_parent_ltree5 by followin:
+select * from get_parent_ltree5(null::parent_tree, 1);
+

@@ -36,3 +36,14 @@ BEGIN
 END
 $func$  LANGUAGE plpgsql STABLE;
 -----------------------------
+--General format for LOOP and incremental in plpgsql function body.
+DECLARE
+   iterator float4 := 1;  -- we can init at declaration time
+BEGIN
+   WHILE iterator < 999
+   LOOP
+      iterator := iterator + 1;
+      -- do stuff
+   END LOOP;
+END;
+------------

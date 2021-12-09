@@ -154,3 +154,13 @@ CROSS  JOIN (
       AND    attnum   > 0        -- no system columns
       )
    ) extra(col_exists) limit 2;
+--ways to merge multi arrays into one array. Also
+--get the duplicated array element.
+ CREATE OR REPLACE FUNCTION mergeArrays (a2 ANYARRAY, a2 ANYARRAY)
+        RETURNS ANYARRAY AS
+                $$
+                SELECT ARRAY_AGG(x ORDER BY x)
+                FROM (SELECT DISTINCT UNNEST($2 || $2) AS x ) s;
+                $$
+        LANGUAGE SQL STRICT;
+-------------------------------------

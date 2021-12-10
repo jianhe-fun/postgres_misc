@@ -1,4 +1,4 @@
---META drop all the function with the same name.
+--A function does represent a transaction. You do not have to wrap a function in BEGIN/COMMIT.
 -- https://stackoverflow.com/questions/7622908/drop-function-without-knowing-the-number-type-of-parameters
 CREATE OR REPLACE FUNCTION f_delfunc(_name text, OUT functions_dropped int)
    LANGUAGE plpgsql AS
@@ -86,6 +86,7 @@ CREATE OR REPLACE FUNCTION func_temp (_tbl regclass)
 --SELECT INTO CLAUSE usage.
 SELECT name,family INTO cName, cFamily FROM "CommonUsersModel";
 SELECT INTO cName, cFamily name,family  FROM "CommonUsersModel" --this way also working.
+SELECT  (_password = $2) INTO passed FROM _tbl WHERE _id = $1; --a little bit complicated.
 ---------------------------------------------------------
 --to Check an text is json or not. 
 create or replace function is_json(text)
@@ -164,3 +165,14 @@ CROSS  JOIN (
                 $$
         LANGUAGE SQL STRICT;
 -------------------------------------
+--EXCEPTIONS and "others" show case.
+create or replace function to_timestamp_null(arg text)
+returns timestamp language plpgsql
+as $$
+    begin
+        return arg::timestamp;
+    exception when others then
+        return null;
+    end $$;
+--test time. 
+select * from to_timestamp_null('foo');

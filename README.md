@@ -19,3 +19,7 @@ _______________________
 >  since functions are not procedures that are invoked with CALL, you cannot do that in functions.
 The BEGIN that starts a block in PL/pgSQL is different from the SQL statement BEGIN that starts a transaction.
 any error within the plpgsql function body will lead to a ROLLBACK that also undoes any of the previous statements in the function body.
+------------------------
+### PLPGSQL function INOUT paramters, returns variable,declare variables
+should be distinguish with the BODY query related
+columns names.  

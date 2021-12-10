@@ -176,3 +176,20 @@ as $$
     end $$;
 --test time. 
 select * from to_timestamp_null('foo');
+--declare variable with rowtype usage.
+CREATE OR REPLACE FUNCTION rowtype_test() RETURNS integer AS
+$BODY$
+DECLARE
+    r parent_tree;
+    b parent_tree[];
+BEGIN
+    FOR r IN SELECT * FROM parent_tree where parent_id  < 3
+    LOOP
+        b := b || r;
+    END LOOP;
+    RETURN 33;
+END
+$BODY$
+LANGUAGE plpgsql;
+-----------------
+

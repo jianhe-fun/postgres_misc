@@ -46,4 +46,15 @@ BEGIN
       -- do stuff
    END LOOP;
 END;
-------------
+-----------
+--General fromat for get the data modifying data.
+$$
+DECLARE array_var BIGINT[];
+BEGIN
+  WITH updated(found_id) AS (
+    UPDATE child SET foo=bar RETURNING id
+  )
+  SELECT array_agg(found_id) FROM updated INTO array_var;
+END
+$$
+----------------------------

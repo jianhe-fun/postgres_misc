@@ -101,3 +101,15 @@ CREATE OR REPLACE FUNCTION public.get_parent_ltree5(_tbl_type anyelement, _paren
 --Now call get_parent_ltree5 by followin:
 select * from get_parent_ltree5(null::parent_tree, 1);
 
+--Table as function input parameter.
+CREATE OR REPLACE FUNCTION update_id(_tbl regclass)
+  RETURNS void AS
+$func$
+BEGIN
+   EXECUTE format('UPDATE %s SET parent_id = parent_id + 1', _tbl);
+END
+$func$  LANGUAGE plpgsql;
+--because the regclass parameter is automatically properly escaped when (automatically) converted to text.
+--%s is OK for here. But if _tbl type is text then we need to using %I to convert it to regclass
+
+

@@ -57,4 +57,19 @@ BEGIN
   SELECT array_agg(found_id) FROM updated INTO array_var;
 END
 $$
-----------------------------
+---------------------------
+--for loop, implicit cursor. format.
+CREATE OR REPLACE FUNCTION f_curs2(_tbl text)
+  RETURNS void AS
+$func$
+DECLARE
+   _ctid tid;
+BEGIN
+   FOR _ctid IN EXECUTE 'SELECT ctid FROM ' || quote_ident(_tbl) FOR UPDATE
+   LOOP
+      EXECUTE format('UPDATE %I SET tbl_id = tbl_id + 100 WHERE ctid = $1', _tbl)
+      USING _ctid;
+   END LOOP;
+END
+$func$  LANGUAGE plpgsql;
+----

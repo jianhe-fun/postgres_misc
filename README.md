@@ -21,13 +21,12 @@ The BEGIN that starts a block in PL/pgSQL is different from the SQL statement BE
 any error within the plpgsql function body will lead to a ROLLBACK that also undoes any of the previous statements in the function body.
 ------------------------
 > PLPGSQL function INOUT paramters, returns variable,declare variables
-should be distinguish with the BODY query related
-columns names. 
----------------
-        index based on an function.   
+should be distinguish with the BODY query related columns names. 
+--------------------------------
+
+##### index based on an function. 
         IMMUTABLE means "does not change" or "unchangeable". What you must do to strictly avoid violating that rule is drop the function and everything that depends on it then re-create it and the indexes that use it.
-        If you change an immutable function's behaviour then indexes based on
-        the function are invalid. The server can't tell if the function's
+If you change an immutable function's behaviour then indexes based on the function are invalid. The server can't tell if the function's
         behaviour has changed or not; you might just have replaced it with an
         optimized version that has identical behaviour in every respect. So it
         won't invalidate the indexes for you, though perhaps it should, since if

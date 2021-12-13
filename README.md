@@ -24,7 +24,7 @@ any error within the plpgsql function body will lead to a ROLLBACK that also und
 should be distinguish with the BODY query related columns names. 
 --------------------------------
 
-##### index based on an function. 
+### index based on an function. 
 IMMUTABLE means "does not change" or "unchangeable". **What you must do to
  strictly avoid violating that rule is drop the function and everything that
  depends on it then re-create it and the indexes that use it.**

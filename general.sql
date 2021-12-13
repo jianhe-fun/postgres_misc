@@ -72,4 +72,25 @@ BEGIN
    END LOOP;
 END
 $func$  LANGUAGE plpgsql;
-----
+-----------------------------------------------------
+-- DO Block format. 
+--1. set up the function
+CREATE OR REPLACE FUNCTION pg_temp_3.columnvaluetolower(_tbl regclass, _col text)                                                2  RETURNS void
+      LANGUAGE plpgsql
+     AS $function$
+             BEGIN
+             execute format('update %s set %I = lower(%I)',_tbl,_col,_col);
+             END
+     $function$
+--2. dymatic execute the user defined function.
+DO
+$do$
+DECLARE
+   _tbl text;
+BEGIN
+PERFORM pg_temp.columnvaluetolower('parent_tree', t.val) 
+   FROM   (VALUES ('some_text')) t(val);
+END
+$do$;
+-----------------------------------------------
+

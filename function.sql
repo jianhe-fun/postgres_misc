@@ -192,4 +192,20 @@ END
 $BODY$
 LANGUAGE plpgsql;
 -----------------
+--random of random. 1. will display 1-8 random number of results. 
+--2. the results will be also random integer. The integer will between 1 to 1000
+CREATE OR REPLACE FUNCTION public.unique_rand_1001()
+RETURNS SETOF integer AS
+$body$
+DECLARE
+    nrnr    int := trunc(random()*7+1);  -- number of numbers
+BEGIN
 
+    RETURN QUERY
+    SELECT (1000 * random())::integer + 1
+    FROM   generate_series(1, nrnr*2)
+    GROUP  BY 1 -- to reduce the duplicted result. 
+    LIMIT  nrnr; -- get the random number of numbers.
+END;
+$body$ LANGUAGE plpgsql VOLATILE;
+----------------------

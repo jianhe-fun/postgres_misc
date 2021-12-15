@@ -34,4 +34,7 @@ If you change an immutable function's behaviour then indexes based on the functi
 PERFORM  do_something(m.id) FROM    MyTable m WHERE   m.IsActive;
 `Perform`  is the PLPG/SQL alternative for `select` for when you want throw
 away the return result. **`Perform` only valid in PLPQSQL context.**
+-----------------------------------
+###[Why you should just use text
+type](https://stackoverflow.com/questions/10758149/cast-produces-returned-type-character-varying-does-not-match-expected-type-char)
 

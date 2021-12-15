@@ -209,3 +209,42 @@ BEGIN
 END;
 $body$ LANGUAGE plpgsql VOLATILE;
 ----------------------
+--function to check in one row is deleteable, also check if table exists or not. 
+CREATE OR REPLACE procedure p_delable(_tbl text, _col text, _id int)
+ AS  $$
+DECLARE
+   _ct bigint;
+   _exists boolean;                             -- to receive count of deleted rows
+BEGIN
+    _exists := (SELECT EXISTS ( SELECT FROM information_schema.tables
+        WHERE  table_schema = 'public' AND    table_name   = $1 ));
+    IF _exists THEN
+        EXECUTE format('DELETE FROM %s WHERE %I = $1', _tbl, _col)
+            USING _id;                         -- exception if other rows depend
+        GET DIAGNOSTICS _ct = ROW_COUNT;
+
+        IF _ct > 0 THEN
+            RAISE SQLSTATE 'MYERR';            -- If DELETE, raise custom exception
+        ELSE
+            RAISE NOTICE 'no records found. no records will be deleted';
+        END IF;
+    ELSE
+        raise notice 'Input text is invalid table name.';
+    END IF;
+   EXCEPTION
+   WHEN undefined_column then
+      raise notice 'Input text is invalid column name.';
+   WHEN undefined_table then
+      raise notice 'Input text is invalid table name.';
+   WHEN FOREIGN_KEY_VIOLATION THEN
+      RAISE NOTICE 'foreign key violation, cannot be deleted.';
+   WHEN SQLSTATE 'MYERR' THEN
+      RAISE NOTICE 'rows % found and can be deleted.', _ct;
+END
+$$ LANGUAGE plpgsql;
+--test time. 
+call p_delable('parent_tree', 'parent_id',30); --check for if one row exists.
+call p_delable('parent_tree', 'parent_id',3); --check record deleteable
+call p_delable('parent_tree', 'parent',1); 
+call p_delable('parent_tre', 'parent_id',3); --also check input table name.
+-----

@@ -35,7 +35,6 @@ PERFORM  do_something(m.id) FROM    MyTable m WHERE   m.IsActive;
 `Perform`  is the PLPG/SQL alternative for `select` for when you want throw
 away the return result. **`Perform` only valid in PLPQSQL context.**
 -----------------------------------
-### [Why you should just use text
-type](https://stackoverflow.com/questions/10758149/cast-produces-returned-type-character-varying-does-not-match-expected-type-char)
-### *[General RETURNING expression shouldbe](https://stackoverflow.com/questions/40864464/postgresql-pgadmin-error-return-cannot-have-a-parameter-in-function-returning-s)
-> you cannot use SELECT without a target in plpgsql code. Replace it with PERFORM in those calls.
+### [Why you should just use text type](https://stackoverflow.com/questions/10758149/cast-produces-returned-type-character-varying-does-not-match-expected-type-char)
+### [General RETURNING expression shouldbe](https://stackoverflow.com/questions/40864464/postgresql-pgadmin-error-return-cannot-have-a-parameter-in-function-returning-s)
+### you cannot use SELECT without a target in plpgsql code. Replace it with PERFORM in those calls.

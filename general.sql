@@ -93,4 +93,17 @@ PERFORM pg_temp.columnvaluetolower('parent_tree', t.val)
 END
 $do$;
 -----------------------------------------------
-
+--general format for profile and test the time consumed about executing the
+--function.
+DECLARE
+start_time timestamp:= clock_timestamp();
+end_time timestamp := clock_timestamp();
+BEGIN
+  raise info 'start time:  %', start_time;
+  FOR r IN SELECT * FROM parent_tree
+  LOOP
+    RAISE NOTICE '%', r.parent_id; 
+  END LOOP;
+raise info 'ending time %', end_time;
+END
+-----------------------------------------

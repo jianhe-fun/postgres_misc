@@ -31,11 +31,10 @@ IMMUTABLE means "does not change" or "unchangeable". **What you must do to
 If you change an immutable function's behaviour then indexes based on the function are invalid. The server can't tell if the function's behaviour has changed or not; you might just have replaced it with an optimized version that has identical behaviour in every respect. So it won't invalidate the indexes for you, though perhaps it should, since if your function's behaviour does differ you can get incorrect query results for queries based on the function. So if function changes, you need rebuild the index that based on that index.
 
 ---------------------------------
-PERFORM  do_something(m.id) FROM    MyTable m WHERE   m.IsActive;
+ PERFORM  do_something(m.id) FROM    MyTable m WHERE   m.IsActive;
 `Perform`  is the PLPG/SQL alternative for `select` for when you want throw
 away the return result. **`Perform` only valid in PLPQSQL context.**
 -----------------------------------
-###[Why you should just use text
-type](https://stackoverflow.com/questions/10758149/cast-produces-returned-type-character-varying-does-not-match-expected-type-char)
-### [General RETURNING expression should
-be](https://stackoverflow.com/questions/40864464/postgresql-pgadmin-error-return-cannot-have-a-parameter-in-function-returning-s)
+### [Why you should just use text type](https://stackoverflow.com/questions/10758149/cast-produces-returned-type-character-varying-does-not-match-expected-type-char)
+### [General RETURNING expression shouldbe](https://stackoverflow.com/questions/40864464/postgresql-pgadmin-error-return-cannot-have-a-parameter-in-function-returning-s)
+### you cannot use SELECT without a target in plpgsql code. Replace it with PERFORM in those calls.

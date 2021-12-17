@@ -107,3 +107,7 @@ BEGIN
 raise info 'ending time %', end_time;
 END
 -----------------------------------------
+--create a temp table based on other query string.
+EXECUTE '
+CREATE TEMP TABLE query_result ON COMMIT DROP AS '|| query_string_;
+---

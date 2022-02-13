@@ -9,3 +9,7 @@ $$
         end if;
 end
 $$
+
+----row exists.
+
+if exists (select from orders o where o.order_num = my_customize_no) then ...

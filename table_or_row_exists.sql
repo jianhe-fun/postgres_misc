@@ -29,3 +29,6 @@ $$
 $$
 language plpgsql;
 
+--demo
+select table_exists('public.orders');
+

@@ -111,5 +111,33 @@ END
 $func$  LANGUAGE plpgsql;
 --because the regclass parameter is automatically properly escaped when (automatically) converted to text.
 --%s is OK for here. But if _tbl type is text then we need to using %I to convert it to regclass
+-------------------------------------------------------------------------
 
+--return setof composite type without cast.
+
+--step1 create new types
+create type name_value_pair as (name text,value text);
+
+----
+create type name_value_pair as (name text,value text);
+create or replace function get_customized_type_value()
+    returns setof name_value_pair as
+$$
+BEGIN
+    return query values
+                 ('email','foo@example.com')
+                      ,('user_id','abc123');
+end
+$$ language plpgsql immutable;
+select * from get_customized_type_value();
+---
+create or replace function get_customized_type_value1()
+    returns setof name_value_pair as
+$$
+begin
+    return query select 'email', 'foo@example.com';
+    return query select 'user_id','abc123';
+end
+$$ language plpgsql immutable;
+select * from get_customized_type_value1();
 

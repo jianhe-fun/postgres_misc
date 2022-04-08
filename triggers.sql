@@ -50,5 +50,4 @@ RETURNS trigger as
 create or replace trigger demo2 before insert or update on tbl for each row execute procedure trg_demo2('txt');
 commit ;
 
-
 insert into tbl(txt) values ('test102');

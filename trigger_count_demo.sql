@@ -23,10 +23,9 @@ insert into customer(customer_ref, customer_name)
 SELECT to_char(i,'fm0000'), 'alias' || i::text
 FROM generate_series(1, 12) AS t(i);
 commit ;
---insert some orders.
-insert into orders (order_num,order_date,customer_ref)
-values ('20220213001','2022-02-13','0003'),
-values ('20220213002','2022-02-13','0003');
+
+
+
 ----------------------------------------------------------
 --the following part is implementation for UPDATE, DELETE, INSERT operation for table orders.
 
@@ -86,3 +85,33 @@ create trigger trigger_del_orders
     AFTER DELETE ON orders FOR EACH ROW
 execute procedure trg_order_delaft();
 
+
+insert into orders (order_num,order_date,customer_ref)
+values ('20220213001','2022-02-13','0003'), ('20220213002','2022-02-13','0003');
+
+table customer;
+
+insert into orders (order_num,order_date,customer_ref)
+values ('20220213003','2022-02-11','0003'), ('20220213004','2022-02-23','0003');
+
+table customer;
+
+insert into orders (order_num,order_date,customer_ref)
+    values ('20220213005','2022-03-11','0003');
+/*
+ERROR:  new row for relation "customer" violates check constraint "order_ct_max1000"
+DETAIL:  Failing row contains (0003, alias3, null, null, null, null, 5).
+CONTEXT:  SQL statement "update customer set  order_ct =  order_ct + 1
+        where customer_ref = NEW.customer_ref"
+PL/pgSQL function f_trigger_order_in() line 3 at SQL statement
+*/
+
+update orders set customer_ref = '0004'
+    where order_num = '20220213003';
+
+table customer;
+
+insert into orders (order_num,order_date,customer_ref)
+    values ('20220213005','2022-03-21','0003');
+
+table customer;

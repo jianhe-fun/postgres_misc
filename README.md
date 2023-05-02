@@ -27,4 +27,12 @@ any error within the plpgsql function body will lead to a ROLLBACK that also und
 > depends on it then re-create it and the indexes that use it.**                                            
 > If you change an immutable function's behaviour then indexes based on the function are invalid. The server can't tell if the function's behaviour has  changed or not; you might just have replaced it with an optimized version that has identical behaviour in every respect. So it won't invalidate the indexes for you, though perhaps it should, since if your function's behaviour does differ you can get incorrect query results for queries based on the function. So if function changes, you need rebuild the index that based on that index.                     
 
+* how to safely drop a role.     
+```--- how to drop a role, when a role have so many privileges in the database.             
+CREATE ROLE tmp LOGIN;          --for holding to be dropped role privileges.                   
+REASSIGN owned BY xyz TO tmp;   -- give all owned privileges to tmp.                       
+DROP owned BY xyz;              -- drop all owned privileges.                            
+DROP ROLE xyz;                  -- drop the role.             
+```
+*  
 

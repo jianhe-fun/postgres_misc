@@ -34,5 +34,6 @@ REASSIGN owned BY xyz TO tmp;   -- give all owned privileges to tmp.
 DROP owned BY xyz;              -- drop all owned privileges.                            
 DROP ROLE xyz;                  -- drop the role.             
 ```
-*  
+*  **func_search_path_required.sql**, event trigger setup.   
+a constraint: newly created function, search_path msut explicitly setup, also function creator at least have one USAGE privilege for one of the search_path schema.
 

@@ -3,7 +3,9 @@
 * all_comment.sql. query database for mosted used objects, like view, table, function etc.   
 * all_select.sql. show all the tables, views, materialized views that can be "SELECT" by public (every role in the cluster).
 * func_search_path_required.sql. event trigger. newly created function must explict set the search_path, aslo function creator have "USAGE" privilege for at least one of the search_path.
+* table_create_require_primary_key.sql. Newly created table must explicit set primary key.
 * global_search directory. mainly global_search and global_match function.
+
 * disallow_column_name_as_id.sql. any of the following actions {create table, create materialized view, alter table, alter materialzied view} new relations column cannot be "id"
 * [Why just use PL/pgSQL Function](https://stackoverflow.com/questions/7510092/what-are-the-pros-and-cons-of-performing-calculations-in-sql-vs-in-your-applica/7518619#7518619)      
 * [PL/pgSQL feature demo](https://stackoverflow.com/questions/7945932/how-to-return-result-of-a-select-inside-a-function-in-postgresql/7945958#7945958)           

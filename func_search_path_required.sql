@@ -6,6 +6,8 @@
 set role jian; --superuser
 DROP EVENT TRIGGER IF EXISTS trig_search_path_required;
 
+
+
 CREATE OR REPLACE FUNCTION public.func_search_path_required()
  RETURNS event_trigger
  LANGUAGE plpgsql
@@ -25,31 +27,31 @@ BEGIN
             command := obj.command_tag;
             _object_identity := obj.object_identity;
             IF command IN ('CREATE FUNCTION', 'ALTER FUNCTION') THEN
-                select 
+                SELECT
                         string_to_array(substring(pconfig::text from 'search_path=(.*)$'),', ')   && array_agg(pn.nspname::text)
                     FROM    pg_proc         pp
-                    JOIN    pg_namespace    pn  ON  pn.oid  =   pp.pronamespace
                     JOIN    pg_language     pl  ON  pl.oid  =   pp.prolang
-                    cross   join unnest(pp.proconfig) s(pconfig)
+                    CROSS   JOIN    unnest(pp.proconfig) s(pconfig)
+                    CROSS   JOIN    pg_namespace            pn
                     WHERE   lanname IN ('sql', 'plpgsql')
                     AND     has_schema_privilege(CURRENT_USER, pn.oid, 'USAGE')
-                    and     pn.nspname <> 'information_schema'
-                    AND     pn.nspname !~* 'pg_'
-                    and     s.pconfig ~* 'search_path='
-                    AND pronamespace::regnamespace::text || '.' || pp.proname
+                    AND     s.pconfig ~* 'search_path='
+                    AND      pronamespace::regnamespace::text || '.' || pp.proname
                             = substring(_object_identity FOR strpos(_object_identity, '(') - 1)
-                    group   by pconfig
+                    GROUP   BY  pconfig
                 INTO schema_exists_also_visible;
                 -- raise notice 'test% obj_identity:%',schema_exists_also_visible, _object_identity;
-                if schema_exists_also_visible is not true then 
+                IF schema_exists_also_visible IS NOT true THEN 
                     RAISE EXCEPTION E'new created function require explicit set the search_paths.\nAlso the function owner should have USAGE for the specified search_paths.';
                 END IF;
             END IF;
         END LOOP;
 END;
 $function$;
+
+
 CREATE EVENT TRIGGER trig_search_path_required ON ddl_command_end
-WHEN tag IN ('CREATE FUNCTION', 'ALTER FUNCTION')
+WHEN TAG IN ('CREATE FUNCTION', 'ALTER FUNCTION')
 EXECUTE FUNCTION func_search_path_required();
 
 --------------------------------------------------------------------------------------------------------
@@ -155,3 +157,5 @@ EXECUTE format('select  $1 operator (%s) $2', (_operator || '(int,int)')::regope
 USING $1, $2 INTO _reuslt;
 END;
 $func$;
+
+drop function if exists func_test1, func_test2, func_test3, func_test4;

@@ -1,13 +1,13 @@
 
-* all_access.sql. permission view for each (objects, role) in the current database. check the actual file for specific object and role.
-* all_comment.sql. query comments for the most used objects in the database, like view, table, function etc.
-* all_select.sql. show all the tables, views, materialized views that can be "SELECT" by public (every role in the cluster).
-* func_search_path_required.sql. event trigger. newly created function must explict set the search_path, aslo function creator have "USAGE" privilege for at least one of the search_path's schema.
+* **all_access.sql**. permission view for each (objects, role) in the current database. check the actual file for specific object and role.
+* **all_comment.sql**. query comments for the most used objects in the database, like view, table, function etc.
+* **all_select.sql**. show all the tables, views, materialized views that can be "SELECT" by public (every role in the cluster).
+* **func_search_path_required.sql**. event trigger. newly created function must explict set the search_path, aslo function creator have "USAGE" privilege for at least one of the search_path's schema.
 * table_create_require_primary_key.sql. Newly created table must explicit set primary key.
-* work_around_not_null.sql. work around when not null constraint violated.
-* insert_passing_var.sql    using updateable view, trigger, passing variable to the insert operation. glue the logic {case when variable is x then do x end case}. into the trigger.
-* global_search directory. mainly global_search and global_match function.
-* disallow_column_name_as_id.sql. any of the following actions {create table, create materialized view, alter table, alter materialzied view} new relations column cannot be "id"
+* **work_around_not_null.sql**. work around when not null constraint violated.
+* **insert_passing_var.sql**.    using updateable view, trigger, passing variable to the insert operation. glue the logic {case when variable is x then do x end case}. into the trigger.
+* **global_search directory**. mainly global_search and global_match function.
+* **disallow_column_name_as_id.sql**. any of the following actions {create table, create materialized view, alter table, alter materialzied view} new relations column cannot be "id"
 * [Why just use PL/pgSQL Function](https://stackoverflow.com/questions/7510092/what-are-the-pros-and-cons-of-performing-calculations-in-sql-vs-in-your-applica/7518619#7518619)      
 * [PL/pgSQL feature demo](https://stackoverflow.com/questions/7945932/how-to-return-result-of-a-select-inside-a-function-in-postgresql/7945958#7945958)           
 * https://stackoverflow.com/questions/7462322/the-forgotten-assignment-operator-and-the-commonplace

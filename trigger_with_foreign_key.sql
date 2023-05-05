@@ -15,73 +15,124 @@
 --I guess performance would be an issue. since your insert one, your compute all, it's a more efficient way to do it.
 
 
-begin;
-create table dept_budget(deptid bigint ,
-deptname text not null, budget_month date not null, budget numeric not null, primary key (deptid));
+BEGIN;
+CREATE TABLE dept_budget (
+    deptid bigint,
+    deptname text NOT NULL,
+    budget_month date NOT NULL,
+    budget numeric NOT NULL,
+    PRIMARY KEY (deptid)
+);
+CREATE TABLE emp_salary_info (
+    empid bigint,
+    name text NOT NULL,
+    salary numeric NOT NULL,
+    deptid bigint REFERENCES dept_budget (deptid),
+    salary_period date,
+    PRIMARY KEY (empid, salary_period)
+);
 
-create table emp_salary_info(
-empid bigint,
-name text not null,
-salary numeric not null,
-deptid bigint references dept_budget(deptid),
-salary_period date, primary key (empid, salary_period));
-insert into dept_budget values(1,'finance','2022-01-01',1000);
-insert into dept_budget values(2,'marketing', '2022-01-01', 1100);
-insert into emp_salary_info values(1,'jerry', 200,1, '2022-01-01');
-insert into emp_salary_info values(2,'seinfeld', 300,1,'2022-01-01');
-insert into emp_salary_info values(3,'george', 301,2,'2022-01-01');
-commit;
+INSERT INTO dept_budget
+    VALUES (1, 'finance', '2022-01-01', 1000)
+        , (2, 'marketing', '2022-01-01', 1100);
+INSERT INTO emp_salary_info
+    VALUES (1, 'jerry', 200, 1, '2022-01-01')
+    ,(2, 'seinfeld', 300, 1, '2022-01-01')
+    ,(3, 'george', 301, 2, '2022-01-01');
+COMMIT;
 
+ALTER TABLE emp_salary_info
+    DROP CONSTRAINT emp_salary_info_pkey;
 
-alter table emp_salary_info drop constraint  emp_salary_info_pkey;
-alter table emp_salary_info add primary key (empid, salary_period);
-alter table dept_budget drop constraint  dept_budget_pkey ;
-alter table dept_budget add primary key (deptid, budget_month);
+ALTER TABLE emp_salary_info
+    ADD PRIMARY KEY (empid, salary_period);
 
-create or replace function f_trigger_emp_salary_info_in()
-returns trigger as
+ALTER TABLE dept_budget
+    DROP CONSTRAINT dept_budget_pkey;
+
+ALTER TABLE dept_budget
+    ADD PRIMARY KEY (deptid, budget_month);
+
+CREATE OR REPLACE FUNCTION f_trigger_emp_salary_info_in ()
+    RETURNS TRIGGER
+    AS $$
+DECLARE
+    r record;
+BEGIN
+    FOR r IN
+    SELECT
+        a.deptid,
+        budget,
+        sum_total
+    FROM (
+        SELECT
+            deptid,
+            sum(salary) sum_total
+        FROM
+            emp_salary_info
+        GROUP BY
+            1) a
+    JOIN dept_budget d USING (deptid)
+LOOP
+    IF r.budget > r.sum_total THEN
+    ELSE
+        RAISE EXCEPTION '% will not insert', NEW.name;
+    END IF;
+END LOOP;
+    RETURN NULL;
+END;
 $$
-    declare r  record;
-    begin
-        for r in
-        select a.deptid, budget, sum_total from
-        (select  deptid, sum(salary) sum_total from emp_salary_info group by 1 ) a
-        join  dept_budget d using (deptid)
-        loop
-            if r.budget >  r.sum_total then
-            else RAISE EXCEPTION '% will not insert', NEW.name;
-            end if;
-        end loop;
-        return null;
-    end;
-$$ language plpgsql;
+LANGUAGE plpgsql;
 
+CREATE OR REPLACE TRIGGER trigger_in_emp_salary_info
+    BEFORE INSERT ON emp_salary_info
+    FOR EACH ROW
+    EXECUTE PROCEDURE f_trigger_emp_salary_info_in ();
 
-create or replace trigger trigger_in_emp_salary_info
-BEFORE INSERT ON emp_salary_info FOR EACH ROW
-execute procedure f_trigger_emp_salary_info_in();
-
-create or replace  trigger trigger_up_emp_salary_info
-BEFORE UPDATE ON emp_salary_info FOR EACH ROW
-execute procedure f_trigger_emp_salary_info_in();
-
-
-
-
+CREATE OR REPLACE TRIGGER trigger_up_emp_salary_info
+    BEFORE UPDATE ON emp_salary_info
+    FOR EACH ROW
+    EXECUTE PROCEDURE f_trigger_emp_salary_info_in ();
 
 --will fail.
-insert into emp_salary_info values(4,'elaine', 501,1,'2022-01-01');
+INSERT INTO emp_salary_info
+    VALUES (4, 'elaine', 501, 1, '2022-01-01');
+
 --this one also will fail.
-update emp_salary_info set salary  = 801 where empid = 2;
+UPDATE
+    emp_salary_info
+SET
+    salary = 801
+WHERE
+    empid = 2;
 
-select e.deptid,d.budget_month, e.sum_total,d.budget from
-(select  deptid, salary_period, sum(salary) sum_total from emp_salary_info group by 1,2) e
-join  dept_budget d on d.deptid = e.deptid and d.budget_month = e.salary_period;
+SELECT
+    e.deptid,
+    d.budget_month,
+    e.sum_total,
+    d.budget
+FROM (
+    SELECT
+        deptid,
+        salary_period,
+        sum(salary) sum_total
+    FROM
+        emp_salary_info
+    GROUP BY
+        1,
+        2) e
+    JOIN dept_budget d ON d.deptid = e.deptid
+        AND d.budget_month = e.salary_period;
 
-table emp_salary_info;
-table dept_budget;
-drop table emp_salary_info cascade ;
-drop table dept_budget cascade;
+TABLE emp_salary_info;
 
-drop trigger trigger_up_emp_salary_info on emp_salary_info;
-drop trigger trigger_up_emp_salary_info on emp_salary_info;
+TABLE dept_budget;
+
+DROP TABLE emp_salary_info CASCADE;
+
+DROP TABLE dept_budget CASCADE;
+
+DROP TRIGGER trigger_up_emp_salary_info ON emp_salary_info;
+
+DROP TRIGGER trigger_up_emp_salary_info ON emp_salary_info;
+

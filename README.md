@@ -1,6 +1,7 @@
 
 * **all_access.sql**. permission view for each (objects, role) in the current database. check the actual file for specific object and role.
 
+* all_columns_upper.sql triggers to force all text columns or one of the text column in a table to upper.
 * **all_comment.sql**. query comments for the most used objects in the database, like view, table, function etc.
 * **all_select.sql**. show all the tables, views, materialized views that can be "SELECT" by public (every role in the cluster).
 * **func_search_path_required.sql**. event trigger. newly created function must explict set the search_path, aslo function creator have "USAGE" privilege for at least one of the search_path's schema.

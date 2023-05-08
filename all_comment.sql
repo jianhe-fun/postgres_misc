@@ -1,4 +1,3 @@
-
 /*
 extract comment from following objects.
     * current_database
@@ -11,17 +10,16 @@ extract comment from following objects.
 
     X = schema_name <> 'information_schema'::text AND schema_name !~* '^pg_'
 */
-COMMENT ON VIEW all_comment IS $$ the above comment $$;
-REVOKE all on table all_comment from public;
-GRANT SELECT ON TABLE all_comment TO public;
+
+DROP VIEW all_comment CASCADE;
 
 CREATE OR REPLACE VIEW all_comment AS
 (
 ------------database comment-------------------
     SELECT
-        NULL::text,
+        NULL::text      as schema,
         text 'database' AS kind,
-        pd.datname,
+        pd.datname      as name,
         pg_catalog.obj_description(pd.oid, 'pg_database') AS description
     FROM
         pg_catalog.pg_database pd
@@ -32,8 +30,8 @@ CREATE OR REPLACE VIEW all_comment AS
 UNION ALL(
 ------------schema comment-------------------
     SELECT
-        pn.nspname AS schema,
-        'schema' AS kind,
+        pn.nspname  AS schema,
+        'schema'    AS kind,
         pn.nspname,
         pg_catalog.obj_description(pn.oid, 'pg_namespace') AS description
     FROM
@@ -124,7 +122,6 @@ UNION ALL(
 ------------function procedure, aggregate, window comment-------------------
     SELECT
         pronamespace::regnamespace::text,
-        pp.proname,
         CASE prokind
         WHEN 'f' THEN
             'function'
@@ -135,6 +132,7 @@ UNION ALL(
         WHEN 'w' THEN
             'window'
         END AS kind,
+        pp.proname,
         pg_catalog.obj_description(pp.oid, 'pg_proc') AS description
     FROM
         pg_catalog.pg_proc pp
@@ -143,3 +141,21 @@ UNION ALL(
         AND pp.pronamespace::regnamespace::text <> 'information_schema'::text
         AND pp.pronamespace::regnamespace::text !~* '^pg_'
 );  
+
+COMMENT ON VIEW all_comment IS $$
+extract comment from following objects.
+    * current_database
+    * schemas   meet criteria X
+    * constraint comment in schemas meet criteria X
+    * {table,index,Sequence,view,'materialized view'
+        ,'composite type','foreign table','partitioned table''partitioned index'} in schemas meet criteria X
+    * column comment in schemas meet criteria X
+    * {normal function,procedure, aggregate function, window function} comment in schemas meet criteria X
+
+    X = schema_name <> 'information_schema'::text AND schema_name !~* '^pg_'
+$$;
+REVOKE all on table all_comment from public;
+GRANT SELECT ON TABLE all_comment TO public;
+
+----------------test.
+SELECT * from all_comment where name ~* 'strip' \gx

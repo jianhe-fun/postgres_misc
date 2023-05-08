@@ -4,6 +4,7 @@
 * all_columns_upper.sql triggers to force all text columns or one of the text column in a table to upper.
 * **all_comment.sql**. query comments for the most used objects in the database, like view, table, function etc.
 * **all_select.sql**. show all the tables, views, materialized views that can be "SELECT" by public (every role in the cluster).
+* **all_strip.sql**. a trigger function and a procedure. based on procedure input, create a trigger for specified table. trigger will strip specified text columns(one or more) leading and trailing white spaces before insert or update on that table. 
 * **func_search_path_required.sql**. event trigger. newly created function must explict set the search_path, aslo function creator have "USAGE" privilege for at least one of the search_path's schema.
 * table_create_require_primary_key.sql. Newly created table must explicit set primary key.
 * **work_around_not_null.sql**. work around when not null constraint violated.

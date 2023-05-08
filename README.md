@@ -1,10 +1,10 @@
 
 * **all_access.sql**. permission view for each (objects, role) in the current database. check the actual file for specific object and role.
 
-* all_columns_upper.sql triggers to force all text columns or one of the text column in a table to upper.
+* **all_upper.sql** generic procedure generic_text_trigger_transform,triggers function upper_this. Newly created trigger will upper specified  columns in specified table before insert or update. generic_text_trigger_transform in all_strip.sql.
 * **all_comment.sql**. query comments for the most used objects in the database, like view, table, function etc.
 * **all_select.sql**. show all the tables, views, materialized views that can be "SELECT" by public (every role in the cluster).
-* **all_strip.sql**. a trigger function and a procedure. based on procedure input, create a trigger for specified table. trigger will strip specified text columns(one or more) leading and trailing white spaces before insert or update on that table. 
+* **all_strip.sql**. Trigger function strip and procedure generic_text_trigger_transform. generic_text_trigger_transform(regclass, text[], text). $1, the trigger target table. $2 type text[], aggregated column names in $1 meet string data type criteria. $3,trigger function. procedure generic_text_trigger_transform is  generic, any kind of one to one text transform(like upper) can be applied.In here trigger function "strip" will strip specified columns name(one or more) leading and trailing white spaces before insert or update on target table($1).
 * **func_search_path_required.sql**. event trigger. newly created function must explict set the search_path, aslo function creator have "USAGE" privilege for at least one of the search_path's schema.
 * table_create_require_primary_key.sql. Newly created table must explicit set primary key.
 * **work_around_not_null.sql**. work around when not null constraint violated.

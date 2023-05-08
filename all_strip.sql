@@ -1,7 +1,9 @@
 
 BEGIN;
-
+DROP TABLE IF EXISTS t12 CASCADE;
+DROP VIEW IF EXISTS spaces;
 DROP FUNCTION IF EXISTS public.strip CASCADE;
+DROP PROCEDURE  IF EXISTS generic_text_trigger_transform(regclass, text[], text);
 
 /*
 Once for all, remove all the leading and trailing white spaces.
@@ -43,17 +45,6 @@ example: https://github.com/postgres/postgres/blob/58f5edf849900bc248b7c909ca17d
         argstr := argstr || TG_argv[i];
     END LOOP;
 
-    IF  argstr is null then
-        RAISE EXCEPTION 'triggers based on strip function require one or more arguments.';
-    END IF;
-
-    IF NOT argstr <@ (
-        SELECT  array_agg(attname::text)
-        FROM    pg_catalog.pg_attribute a
-        WHERE   a.attrelid = TG_RELID AND a.attnum >= 1 AND NOT a.attisdropped) THEN
-            RAISE EXCEPTION 'triggers based on strip function require one or more arguments.';
-    END IF;
-
     SELECT
         INTO _sql,
         _found 'select ' || string_agg(
@@ -86,51 +77,91 @@ $func$
 LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE PROCEDURE sanitize_col_spaces (regclass, text[])
+/*
+generic text trigger transform.
+    for the specified table ($1),columns ($2)
+    create trigger based on $3 trigger function.
+    validate $3 is a trigger function not in pg_catalog, is visible to search_path
+    validate $1,$2 do actually exists.
+*/
+CREATE OR REPLACE PROCEDURE generic_text_trigger_transform(regclass, text[], text)
     AS $func$
 DECLARE
     stmt text;
     trg text;
     args text;
+    _typ CONSTANT regtype[] := '{text,bpchar,name, varchar}';
+    _sql    text;
 BEGIN
+
+    IF  $1 IS NULL OR $2 IS NULL OR $3 IS NULL THEN
+        RAISE EXCEPTION '$1, $2, $3 all should not be null!';
+    END IF;
+
     IF  NOT EXISTS(
-        SELECT  array_agg(attname::text) @> $2
+        SELECT
+        FROM        pg_catalog.pg_proc pp
+        LEFT JOIN   pg_catalog.pg_namespace n ON n.oid = pp.pronamespace
+        WHERE   pp.proname   =  $3
+            AND pg_catalog.pg_function_is_visible(pp.oid)
+            AND n.nspname::text <> 'pg_catalog'
+            AND pg_catalog.pg_get_function_result(pp.oid) = 'trigger'
+        )
+        THEN
+        RAISE EXCEPTION '$3 should be a function that not in pg_catalog schema and return trigger and is visible to search_path';
+    END IF;
+
+    IF  NOT EXISTS(
+        SELECT  
         FROM    pg_attribute    pa
         JOIN    pg_class        pc  
         ON      pc.oid  = pa.attrelid
         WHERE   pa.attrelid = $1   
         AND     pa.attnum > 0 
-        AND     pa.attisdropped IS FALSE
-        AND     pc.relkind in ('r','m','p')
+        AND     pa.attisdropped IS FALSE        
+        AND     pc.relpersistence   = 'p'
+        AND     pc.relkind in ('r','m','p')     --regular table or materialized view or partitioned table.
+        AND     pa.attgenerated    = ''         --should not touch generated columns
+        AND     pa.atttypid     = ANY(_typ)
         HAVING array_agg(attname::text) @> $2
         ) THEN
-            RAISE EXCEPTION 'specified text column names not in the $1.'
-                            'or $1 relation not exists, or $1 is not regular table.';
+            
+        RAISE EXCEPTION 'upper_this exception! because one or more of the following cases yield true:
+                        * not all columns($2) in $1
+                        * $1 table not exists
+                        * $1 is not in (regular table, materialized view, partitioned table)
+                        * $1 is not permanent table
+                        * one of $2 is generated columns
+                        * $2 type <> ANY{text,bpchar,name, varchar}';                        
     END IF;
-    trg := 'strip_' || $1::text || '_' || (
-        SELECT  string_agg((x), '_')
-        FROM    unnest($2) sub (x));
-    
+
+    trg :=  $1::text  ||    '_' ||$3 || '_' || (
+    SELECT
+        string_agg((x), '_')
+    FROM
+        unnest($2) sub (x));
+
     IF EXISTS (
         SELECT  FROM    pg_trigger
-        WHERE   tgrelid = $1    AND tgname = trg)   THEN    
+        WHERE   tgrelid = $1    
+        AND     tgname = trg)   THEN    
             RAISE EXCEPTION 'trigger % on % already exists!',trg, $1;
     END IF;
 
     args := '(' || (
-        SELECT
-            string_agg(quote_literal(x), ', ')
-        FROM
-            unnest($2) sub (x)) || ')';
+        SELECT  string_agg(quote_literal(x), ', ')
+        FROM    unnest($2) sub (x)) || ')';
+
     stmt := format('
             CREATE TRIGGER  %s
             BEFORE INSERT OR UPDATE ON ', trg) || $1::text|| ' FOR EACH ROW '
-            ' EXECUTE PROCEDURE strip ' || args;
+            ' EXECUTE PROCEDURE ' || $3 || ' ' || args;
     -- RAISE NOTICE 'stmt:%', stmt;
-    EXECUTE stmt;
+    EXECUTE stmt;        
 END
 $func$
 LANGUAGE plpgsql;
+
 
 comment on function  public.strip is $$
 trigger based function to strip leading and trailing white spaces.
@@ -143,21 +174,27 @@ references:
     https://www.postgresql.org/docs/current/functions-string.html
 $$;
 
-comment on PROCEDURE sanitize_col_spaces is $$
-create trigger for specified table $1(regclass), specified columns $2(text[]).
-If table or or columns  not exists then raise exception.
+comment on PROCEDURE generic_text_trigger_transform is $$
+generic text trigger transform.
+    for the specified table ($1),columns ($2)
+    create trigger based on $3 trigger function.
+    validate $3 is a trigger function not in pg_catalog, is visible to search_path
+    validate $1,$2 do actually exists.
 $$;
 
 COMMIT;
+
 ------------------------------------------------------------------------
 --test 
 
 --validate comment is there.
-SELECT  *   FROM    all_comment WHERE    name = 'strip';
+SELECT length(description) > 400 as comment_there 
+FROM    all_comment 
+WHERE    name = 'strip';
 
-
-
-DROP TABLE IF EXISTS t12 CASCADE;
+BEGIN;
+DROP TABLE  IF EXISTS t12 CASCADE;
+DROP VIEW   IF EXISTS spaces CASCADE;
 
 CREATE TABLE t12 (
     tid int GENERATED BY DEFAULT AS IDENTITY,
@@ -184,33 +221,28 @@ FROM (
     SELECT
         generate_series(8203, 8207) AS dec -- First 5 space-like UNICODE "Format characters"
 ) t (chr_d);
-
-
-call sanitize_col_spaces('t12',array['bullshit']);
-/*
-ERROR:  specified text column names not in the $1. or $1 relation not exists
-CONTEXT:  PL/pgSQL function sanitize_col_spaces(regclass,text[]) line 11 at RAISE
-*/
+COMMIT;
 
 ---- test insert on src column.
 BEGIN;
-call sanitize_col_spaces('t12',array['src']);
+call generic_text_trigger_transform('t12',array['src'],'strip');
 
 INSERT INTO t12 (chr_d, in_posix_space_class, src)
-SELECT  chr_d,in_posix_space_class,src  FROM    spaces  ORDER BY    1   LIMIT 1;
+SELECT  chr_d,in_posix_space_class,src  
+FROM    spaces;
 
-INSERT INTO t12 (chr_d, in_posix_space_class, src)
-SELECT  chr_d,in_posix_space_class,src
-FROM    spaces  ORDER BY    1 offset 1;
+SELECT  count(*)    as src_should_be_zero
+FROM    t12
+where   length(src) <> 14
+and     src IS NOT NULL;
 
-SELECT    length(src),  *   FROM    t12;
 ROLLBACK;
 
     
 
 --test update on column src_v2.
 BEGIN;
-call sanitize_col_spaces('t12',array['src_v2']);
+call generic_text_trigger_transform('t12',array['src_v2'],'strip');
 
 INSERT INTO t12 (chr_d, in_posix_space_class, src)
 SELECT    chr_d,  in_posix_space_class,   src
@@ -218,26 +250,37 @@ FROM    spaces;
 
 UPDATE  t12 SET src_v2 = src;
 
-TABLE t12;
+SELECT  count(*)    as src_v2_should_be_zero
+FROM    t12
+where   length(src_v2) <> 14
+and     src_v2 IS NOT NULL;
+
 ROLLBACK;
+
 
 --test update on column src_v1, src_v2.
 BEGIN;
-call sanitize_col_spaces('t12',array['src_v1','src_v2']);
+call generic_text_trigger_transform('t12',array['src_v1','src_v2'],'strip');
 
 INSERT INTO t12 (chr_d, in_posix_space_class, src)
-SELECT  chr_d,in_posix_space_class,src  FROM    spaces;
-
-SELECT  *,  length(src) FROM    t12;
+SELECT  chr_d,in_posix_space_class,src  
+FROM    spaces;
 
 UPDATE  t12 SET src_v1 = src,src_v2 = src;
-    
-SELECT  *,length(src),length(src_v1),length(src_v1) = length(src_v2)    FROM    t12;
+
+SELECT  count(*)    as src_v1_should_be_zero
+FROM    t12
+where   length(src_v1) <> 14
+and     src_v1 IS NOT NULL;
+
+SELECT  count(*)    as src_v2_should_be_zero
+FROM    t12
+where   length(src_v2) <> 14
+and     src_v2 IS NOT NULL;
 
 ROLLBACK;
 
 --clean up.
 DROP TABLE IF EXISTS t12 CASCADE;
-DROP FUNCTION IF EXISTS public.strip CASCADE;
 DROP VIEW IF EXISTS spaces;
-DROP PROCEDURE IF EXISTS sanitize_col_spaces;
+

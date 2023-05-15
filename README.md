@@ -9,7 +9,7 @@
 * table_create_require_primary_key.sql. Newly created table must explicit set primary key.
 * **work_around_not_null.sql**. work around when not null constraint violated.
 * **insert_passing_var.sql**.    using updateable view, trigger, passing variable to the insert operation. glue the logic {case when variable is x then do x end case}. into the trigger.
-* **global_search directory**. mainly global_search and global_match function.
+* **global_match.sql**. pattern match against multiple relations.
 * **disallow_column_name_as_id.sql**. any of the following actions {create table, create materialized view, alter table, alter materialzied view} new relations column cannot be "id"
 * [Why just use PL/pgSQL Function](https://stackoverflow.com/questions/7510092/what-are-the-pros-and-cons-of-performing-calculations-in-sql-vs-in-your-applica/7518619#7518619)      
 * [PL/pgSQL feature demo](https://stackoverflow.com/questions/7945932/how-to-return-result-of-a-select-inside-a-function-in-postgresql/7945958#7945958)           

@@ -1,6 +1,6 @@
 /*
     *query current database all relations {table,view, materialized view, partitioned table} 
-    that are allowed to 'SELECT' by every role.
+    that are allowed to 'SELECT' by every role (public).
 */
 DROP VIEW all_select;
 CREATE OR REPLACE VIEW public.all_select AS

@@ -5,6 +5,8 @@
 
 * **all_id.sql**. generally, some table have columns name as id. 2 functions. first one to evaulate existence table column name (~* id) value equal to x. Second one, returns rows (same data type as the table) where column name = x. 
 
+* **all_index_bloat.sql**. index bloat estimation. Require superuser priviledge to read table pg_statistic.
+
 * **all_comment.sql**. query comments for the most used objects in the database, like view, table, function etc.
 
 * **all_select.sql**. show all the tables, views, materialized views that can be "SELECT" by public (every role in the cluster).

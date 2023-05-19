@@ -1,6 +1,8 @@
 
 * **all_access.sql**. permission view for each (objects, role) in the current database. check the actual file for specific object and role.
 
+* **all_bloat.sql**. table bloat estimation experiment. via view pg_stats or via pgstattuple_approx function. 
+
 * **all_id.sql**. generally, some table have columns name as id. 2 functions. first one to evaulate existence table column name (~* id) value equal to x. Second one, returns rows (same data type as the table) where column name = x. 
 
 * **all_comment.sql**. query comments for the most used objects in the database, like view, table, function etc.

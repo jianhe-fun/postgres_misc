@@ -4,6 +4,7 @@
     * https://wiki.postgresql.org/wiki/Index_Maintenance
     * https://www.pgcon.org/2009/schedule/attachments/96_visualizing-postgres-2009-05-21.pdf
     * https://www.cybertec-postgresql.com/en/estimating-table-bloat/
+    * https://www.postgresql.org/docs/current/pgstattuple.html
 
 --populate pgbench.
 	/home/jian/postgres/pg16_test/bin/pgbench -i -s10 test16

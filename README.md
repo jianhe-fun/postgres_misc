@@ -16,6 +16,9 @@
 * **func_search_path_required.sql**. event trigger. newly created function must explict set the search_path, aslo function creator have "USAGE" privilege for at least one of the search_path's schema.
 
 * **all_upper.sql** generic procedure generic_text_trigger_transform,triggers function upper_this. Newly created trigger will upper specified  columns in specified table before insert or update. generic_text_trigger_transform in all_strip.sql.
+
+* **btree_walk.sql**  btree walk through, from root node to inner node to leaf node.
+
 * table_create_require_primary_key.sql. Newly created table must explicit set primary key.
 * **work_around_not_null.sql**. work around when not null constraint violated.
 * **insert_passing_var.sql**.    using updateable view, trigger, passing variable to the insert operation. glue the logic {case when variable is x then do x end case}. into the trigger.

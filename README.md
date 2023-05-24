@@ -24,6 +24,9 @@
 * **insert_passing_var.sql**.    using updateable view, trigger, passing variable to the insert operation. glue the logic {case when variable is x then do x end case}. into the trigger.
 * **global_match.sql**. pattern match against multiple relations.
 * **disallow_column_name_as_id.sql**. any of the following actions {create table, create materialized view, alter table, alter materialzied view} new relations column cannot be "id"
+
+* **last_modified.sql** Update last_modified (timestamptz) value to now() every time insert/update on the corresponding row.
+
 * [Why just use PL/pgSQL Function](https://stackoverflow.com/questions/7510092/what-are-the-pros-and-cons-of-performing-calculations-in-sql-vs-in-your-applica/7518619#7518619)      
 * [PL/pgSQL feature demo](https://stackoverflow.com/questions/7945932/how-to-return-result-of-a-select-inside-a-function-in-postgresql/7945958#7945958)           
 * https://stackoverflow.com/questions/7462322/the-forgotten-assignment-operator-and-the-commonplace

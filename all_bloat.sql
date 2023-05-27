@@ -28,10 +28,10 @@ where tblname = 'pgbench_accounts' and schemaname = 'public';
 */
 
 create or replace view bloat	as
-SELECT	current_database()					--database
-		,schemaname							--schema
-		,tblname							--tablename
-		,bs * tblpages AS real_size			-- real_size (only main relation)
+SELECT	current_database()	as database					--database
+		,schemaname			as schema				--schema
+		,tblname			as table				--tablename
+		,bs * tblpages 		AS real_size			-- real_size (only main relation)
 		,(tblpages-est_tblpages)*bs AS extra_size	--estimate extra free size can be reused 
 		,CASE WHEN tblpages > 0 AND tblpages - est_tblpages > 0 THEN 100 * (tblpages - est_tblpages)/tblpages::float
     		ELSE 0
@@ -123,4 +123,4 @@ FROM (
 ) AS s3
 -- WHERE NOT is_na
 --   AND tblpages*((pst).free_percent + (pst).dead_tuple_percent)::float4/100 >= 1
-ORDER BY schemaname, tblname;
+ORDER BY 4 DESC NULLS LAST;

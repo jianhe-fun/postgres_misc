@@ -65,7 +65,7 @@ BEGIN
             AND     split_part(tablename, '.', 1) = $1 --specify the schema.
         LOOP
             -- raise notice 'target_rel is %', target_rel;
-            EXECUTE 'ANALYZE (skip_locked) ' || target_rel;
+            EXECUTE $sql$ANALYZE (skip_locked, BUFFER_USAGE_LIMIT '1024 kB') $sql$ || target_rel;
             COMMIT;     --commit chain. batch commit. so this procedure cannot be nested.
         END LOOP;
     ELSE
@@ -77,15 +77,14 @@ BEGIN
             WHERE       est_mod_tup > (max_mod_tup * 0.9)            
         LOOP
             -- RAISE NOTICE 'target_rel is %', target_rel;
-            EXECUTE 'ANALYZE (skip_locked) ' || target_rel;
+            EXECUTE $sql$ANALYZE (skip_locked, BUFFER_USAGE_LIMIT '1024 kB') $sql$ || target_rel;
             COMMIT;     --commit chain. batch commit. so this procedure cannot be nested.            
         END LOOP;
     END IF;
 END
 $proc$;
 
----------------------------------------------
---- 1 way test n_mod_since_analyze is pretty accurate.
+----------- 1 way test n_mod_since_analyze is pretty accurate.
 create table tenk3 (like tenk1 including all ); 
 alter table tenk3 set (autovacuum_enabled=false,autovacuum_vacuum_scale_factor=0.9,fillfactor=80);
 truncate tenk3;
@@ -94,15 +93,13 @@ select * from need_analyze where tablename ~* 'tenk3';
 update tenk3 set unique1 = unique1;
 update tenk3 set unique1 = unique1 where random() > 0.5; 
 select * from need_analyze where tablename = 'public.tenk3' \gx
---- another way test n_mod_since_analyze is pretty accurate.
+CALL analyze_it ('public');
+drop table tenk3;
+----------- 2. way test n_mod_since_analyze is pretty accurate.
 create table tenk3 (like tenk1 including all ); 
 alter table tenk3 set (autovacuum_enabled=false,autovacuum_vacuum_scale_factor=0.9,fillfactor=80);
 COPY tenk3 from '/home/jian/Desktop/test.csv' WITH  (format csv,delimiter '|', header);
 select * from need_analyze where tablename ~* 'tenk3';
 select * from need_analyze where tablename = 'public.tenk3' \gx
-----------------------------------------------
---test time.
 CALL analyze_it ('public');
-
---clean up
 drop table tenk3;

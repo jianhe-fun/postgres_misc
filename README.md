@@ -13,7 +13,7 @@
 * **all_select.sql**. show all the tables, views, materialized views that can be "SELECT" by public (every role in the cluster).
 
 * **all_strip.sql**. Trigger function strip and procedure generic_text_trigger_transform. generic_text_trigger_transform(regclass, text[], text). $1, the trigger target table. $2 type text[], aggregated column names in $1 meet string data type criteria. $3,trigger function. procedure generic_text_trigger_transform is  generic, any kind of one to one text transform(like upper) can be applied.In here trigger function "strip" will strip specified columns name(one or more) leading and trailing white spaces before insert or update on target table($1).
-* **func_search_path_required.sql**. event trigger. newly created function must explict set the search_path, aslo function creator have "USAGE" privilege for at least one of the search_path's schema.
+* **search_path_required.sql**. event trigger. newly created function must explict set the search_path, aslo function creator have "USAGE" privilege for at least one of the search_path's schema.
 
 * **all_upper.sql** generic procedure generic_text_trigger_transform,triggers function upper_this. Newly created trigger will upper specified  columns in specified table before insert or update. generic_text_trigger_transform in all_strip.sql.
 

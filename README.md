@@ -17,6 +17,8 @@
 
 * **all_upper.sql** generic procedure generic_text_trigger_transform,triggers function upper_this. Newly created trigger will upper specified  columns in specified table before insert or update. generic_text_trigger_transform in all_strip.sql.
 
+* **atleast1.sql** AFTER DELETE trigger on foreign key table, enforce at least one entry for each unique foreign key, after delete.
+
 * **btree_walk.sql**  btree walk through, from root node to inner node to leaf node.
 
 * table_create_require_primary_key.sql. Newly created table must explicit set primary key.

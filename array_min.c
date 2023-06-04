@@ -1,12 +1,11 @@
 /*
-    array_max.c
+    array_min.c
     https://stackoverflow.com/questions/16992339/why-is-postgresql-array-access-so-much-faster-in-c-than-in-pl-pgsql/16996606#16996606
 
     #### replace to your local include dir, c file, so file, o file.
-    gcc -I/home/jian/postgres/2023_05_25_beta5421/include/server -fPIC -c /home/jian/Desktop/regress_pgsql/array_max.c
-    gcc -shared  -o /home/jian/Desktop/regress_pgsql/array_max.so /home/jian/Desktop/regress_pgsql/array_max.o
+    gcc -I/home/jian/postgres/2023_05_25_beta5421/include/server -fPIC -c /home/jian/Desktop/regress_pgsql/array_min.c
+    gcc -shared  -o /home/jian/Desktop/regress_pgsql/array_min.so /home/jian/Desktop/regress_pgsql/array_min.o
 */
-
 #include "postgres.h"
 
 #include "utils/builtins.h"
@@ -22,10 +21,10 @@
 #include "utils/fmgrprotos.h"
 
 PG_MODULE_MAGIC;
-PG_FUNCTION_INFO_V1(array_max);
+PG_FUNCTION_INFO_V1(array_min);
 
 Datum 
-array_max(PG_FUNCTION_ARGS)
+array_min(PG_FUNCTION_ARGS)
 {
     ArrayType   *arr;
     Datum         *type_oids;
@@ -90,7 +89,7 @@ array_max(PG_FUNCTION_ARGS)
                     nullcnt++;
                     continue;
                 }
-                if((bool) DirectFunctionCall2(int8gt,Int64GetDatum(type_oids[i]),temp))
+                if((bool) DirectFunctionCall2(int8lt,Int64GetDatum(type_oids[i]),temp))
                     temp  = type_oids[i];
             }        
             non_nullcnt = nelements - nullcnt;        
@@ -107,7 +106,7 @@ array_max(PG_FUNCTION_ARGS)
                     nullcnt++;
                     continue;
                 }
-                if( (bool) DirectFunctionCall2(float4gt,type_oids[i],temp))
+                if( (bool) DirectFunctionCall2(float4lt,type_oids[i],temp))
                     temp  = type_oids[i];                        
             }        
             non_nullcnt = nelements - nullcnt;   
@@ -124,7 +123,7 @@ array_max(PG_FUNCTION_ARGS)
                     nullcnt++;
                     continue;
                 }
-                if( (bool) DirectFunctionCall2(float8gt,type_oids[i],temp))
+                if( (bool) DirectFunctionCall2(float8lt,type_oids[i],temp))
                     temp  = type_oids[i];                        
             }        
             non_nullcnt = nelements - nullcnt;   
@@ -141,7 +140,7 @@ array_max(PG_FUNCTION_ARGS)
                     nullcnt++;
                     continue;
                 }
-                if( (bool) DirectFunctionCall2(numeric_gt,type_oids[i],temp))
+                if( (bool) DirectFunctionCall2(numeric_lt,type_oids[i],temp))
                     temp  = type_oids[i];
             }        
             non_nullcnt = nelements - nullcnt;   
@@ -158,7 +157,7 @@ array_max(PG_FUNCTION_ARGS)
                     nullcnt++;
                     continue;
                 }
-                if( (bool) DirectFunctionCall2(date_gt,type_oids[i],temp))
+                if( (bool) DirectFunctionCall2(date_lt,type_oids[i],temp))
                     temp  = type_oids[i];
             }   
             non_nullcnt = nelements - nullcnt;   
@@ -175,7 +174,7 @@ array_max(PG_FUNCTION_ARGS)
                     nullcnt++;
                     continue;
                 }
-                if( (bool) DirectFunctionCall2(time_gt,type_oids[i],temp))
+                if( (bool) DirectFunctionCall2(time_lt,type_oids[i],temp))
                     temp  = type_oids[i];
             }        
             non_nullcnt = nelements - nullcnt;   
@@ -192,7 +191,7 @@ array_max(PG_FUNCTION_ARGS)
                     nullcnt++;
                     continue;
                 }
-                if( (bool) DirectFunctionCall2(timestamp_gt,type_oids[i],temp))
+                if( (bool) DirectFunctionCall2(timestamp_lt,type_oids[i],temp))
                     temp  = type_oids[i];
             }        
             non_nullcnt = nelements - nullcnt;   
@@ -209,7 +208,7 @@ array_max(PG_FUNCTION_ARGS)
                     nullcnt++;
                     continue;
                 }
-                if ((bool) DirectFunctionCall2(timestamp_gt,type_oids[i],temp))
+                if ((bool) DirectFunctionCall2(timestamp_lt,type_oids[i],temp))
                     temp  = type_oids[i];
             }        
             
@@ -227,7 +226,7 @@ array_max(PG_FUNCTION_ARGS)
                     nullcnt++;
                     continue;
                 }
-                if( (bool) DirectFunctionCall2(interval_gt,type_oids[i],temp))
+                if( (bool) DirectFunctionCall2(interval_lt,type_oids[i],temp))
                     temp  = type_oids[i];
             }        
             non_nullcnt = nelements - nullcnt;   
@@ -244,7 +243,7 @@ array_max(PG_FUNCTION_ARGS)
                     nullcnt++;
                     continue;
                 }
-                if( (bool) DirectFunctionCall2(timetz_gt,type_oids[i],temp))
+                if( (bool) DirectFunctionCall2(timetz_lt,type_oids[i],temp))
                     temp  = type_oids[i];
             }        
             non_nullcnt = nelements - nullcnt;   
@@ -261,7 +260,7 @@ array_max(PG_FUNCTION_ARGS)
                     nullcnt++;
                     continue;
                 }
-                if( (bool) DirectFunctionCall2(pg_lsn_gt,type_oids[i],temp))
+                if( (bool) DirectFunctionCall2(pg_lsn_lt,type_oids[i],temp))
                     temp  = type_oids[i];
             }        
             non_nullcnt = nelements - nullcnt;   

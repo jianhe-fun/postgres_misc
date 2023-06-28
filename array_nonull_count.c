@@ -2,19 +2,13 @@
     array_nonull_count.c
     
     #### replace to your local include dir, c file, so file, o file.
-    gcc -I/home/jian/postgres/2023_05_25_beta5421/include/server -fPIC -c /home/jian/Desktop/regress_pgsql/array_nonull_count.c
-    gcc -shared  -o /home/jian/Desktop/regress_pgsql/array_nonull_count.so /home/jian/Desktop/regress_pgsql/array_nonull_count.o
+    gcc -I/home/jian/postgres/2023_05_25_beta5421/include/server -fPIC -c /home/jian/postgres_misc/array_nonull_count.c
+    gcc -shared  -o /home/jian/postgres_misc/array_nonull_count.so /home/jian/postgres_misc/array_nonull_count.o
 */
 #include "postgres.h"
 
 #include "utils/builtins.h"
 #include "utils/array.h"
-#include "utils/numeric.h"
-#include "utils/datetime.h"
-#include "utils/date.h"
-#include "utils/timestamp.h"
-#include "utils/timeout.h"
-#include "utils/pg_lsn.h"
 #include "funcapi.h"
 #include "utils/lsyscache.h"
 #include "utils/fmgrprotos.h"
@@ -35,11 +29,12 @@ array_nonull_count(PG_FUNCTION_ARGS)
     bool       *typnullflag;
     int		    i;
     int		    nullcnt         = 0;
-    int		    non_nullcnt;
+    int64		    non_nullcnt;
 
     arr = PG_GETARG_ARRAYTYPE_P(0);
+
     if (PG_ARGISNULL(0))
-        	ereport(ERROR, (errmsg("only for non null arrays.")));
+        PG_RETURN_NULL();
 
     //This requirement could probably be lifted pretty easily:
     if (ARR_NDIM(arr) == 0)
@@ -70,5 +65,5 @@ array_nonull_count(PG_FUNCTION_ARGS)
     if (non_nullcnt == 0)
         PG_RETURN_NULL();
     else
-        PG_RETURN_DATUM(non_nullcnt);                
+        PG_RETURN_INT64(non_nullcnt);               
 }

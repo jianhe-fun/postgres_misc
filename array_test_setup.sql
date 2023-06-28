@@ -83,3 +83,22 @@ from    test_generic_big;
 
 vacuum analyze test_generic_big_array;
 vacuum analyze test_generic_big;
+
+create table test_generic_big_normal(like test_generic_big including  all);
+
+--less random data, more sane data.
+insert into test_generic_big_normal
+select  (random() * 30000)::int2 % 20 as a
+        ,(g::int4    + (random() * 1e6)::int4) % 1e5 as b
+        ,(g::int8    + (random() * 1e6)::int8) % 1e5 as c
+        ,g::float4  + (random() * 100)::float4 as d
+        ,g::float8  + (random() * 100)::float8 as e
+        ,g::numeric(10,3) + ((random() * 1e7)::numeric(10,3) % 1e6)::numeric(10,3)  as f
+        ,(now() - interval '2 month')::date + (random() * 1e5)::int % 10000::int as g
+        ,(now())::time(0) as h
+        ,(now() - interval '2 month')::timestamp(0) + (random() * 1000)::int % 100 * interval '10 hour'  as i
+        ,(now() - interval '2 month')::timestamptz(0) + (random() * 1000)::int % 100 * interval '10 hour' as j
+        ,(interval '2 month') * (random() * 10)::numeric(10,3)   as k
+        ,(now() - interval '2 month')::timetz(0) + interval '10 hour' * (random() * 10)::numeric(10,3) as l
+        ,'7/A25801C8'::pg_lsn + (random()  * 100)::numeric(10,3)      as m
+from    generate_series(1,1e6) g;
